@@ -3,599 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Праздники СНГ + ИИ помощник по праздникам</title>
+    <title>Праздники СНГ + ИИ помощник</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            background-image: radial-gradient(circle at top right, #1e1b4b 0%, #020617 40%),
+                              radial-gradient(circle at bottom left, #064e3b 0%, #020617 40%);
+            background-attachment: fixed;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 900px;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-            transition: all 0.2s;
+        /* Кастомный скроллбар для темной темы */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+        .chat-bubble-enter {
+            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .tab-btn {
-            flex: 1;
-            padding: 16px 12px;
-            background: none;
-            border: none;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            letter-spacing: -0.2px;
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .tab-btn i { font-style: normal; font-size: 1.25rem; }
-
-        .tab-btn.active {
-            background: white;
-            color: #4f46e5;
-            border-bottom: 3px solid #4f46e5;
-        }
-
-        .tab-content {
-            display: none;
-            height: 620px;
-            flex-direction: column;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        /* Country selector (СНГ) */
-        .country-selector {
-            background: #f1f5f9;
-            padding: 12px 20px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .country-selector label {
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 0.85rem;
-        }
-
-        .country-selector select {
-            flex: 2;
-            padding: 8px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            background: white;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .holidays-messages, .ai-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #fefce8;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .ai-messages {
-            background: #f0fdf4;
-        }
-
-        .holidays-input, .ai-input {
-            padding: 16px 20px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .holidays-input input, .ai-input input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 1px solid #cbd5e1;
-            border-radius: 48px;
-            outline: none;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-
-        .holidays-input input:focus, .ai-input input:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-        }
-
-        .holidays-input button {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 0 24px;
-            border-radius: 48px;
-            cursor: pointer;
-            font-weight: 600;
-            height: 44px;
-        }
-
-        .ai-input button {
-            background: #059669;
-            color: white;
-            border: none;
-            padding: 0 24px;
-            border-radius: 48px;
-            cursor: pointer;
-            font-weight: 600;
-            height: 44px;
-        }
-
-        .holidays-input button:hover, .ai-input button:hover {
-            opacity: 0.9;
-            transform: scale(0.97);
-            transition: 0.1s;
-        }
-
-        .ai-header {
-            background: linear-gradient(105deg, #059669 0%, #10b981 100%);
-            color: white;
-            padding: 14px 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .message {
-            display: flex;
-            animation: fadeInUp 0.25s ease-out;
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message-content {
-            max-width: 80%;
-            padding: 10px 18px;
-            border-radius: 24px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
-        }
-
-        .user .message-content {
-            background: #4f46e5;
-            color: white;
-            border-bottom-right-radius: 6px;
-        }
-
-        .bot .message-content {
-            background: white;
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-            border-bottom-left-radius: 6px;
-        }
-
-        .quick-actions {
-            background: #ffffffcc;
-            backdrop-filter: blur(4px);
-            padding: 12px 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            border-top: 1px solid #e2e8f0;
-            justify-content: center;
-        }
-
-        .quick-btn {
-            background: #e6f7ec;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #065f46;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .quick-btn.random-btn {
-            background: #fef3c7;
-            color: #b45309;
-        }
-
-        .quick-btn:hover {
-            transform: translateY(-2px);
-            background: #d1fae5;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .holiday-badge {
-            background: #facc15;
-            color: #3b2e00;
-            border-radius: 30px;
-            padding: 2px 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
+        .typing-indicator span {
             display: inline-block;
-            margin-right: 6px;
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite both;
         }
 
-        ::-webkit-scrollbar {
-            width: 5px;
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
+        
+        /* Конфетти канвас поверх всего */
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0; w: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
         }
     </style>
 </head>
-<body>
-<div class="app-container">
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="holidays">📅 Праздники СНГ</button>
-        <button class="tab-btn" data-tab="ai">✨ ИИ-помощник (необычные праздники)</button>
-    </div>
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-2 sm:p-6 text-sm sm:text-base">
 
-    <!-- Вкладка: Праздники СНГ -->
-    <div id="holidaysTab" class="tab-content active">
-        <div class="country-selector">
-            <label>🇺🇳 Страна:</label>
-            <select id="countrySelect">
-                <option value="russia">🇷🇺 Россия</option>
-                <option value="belarus">🇧🇾 Беларусь</option>
-                <option value="kazakhstan">🇰🇿 Казахстан</option>
-                <option value="armenia">🇦🇲 Армения</option>
-                <option value="azerbaijan">🇦🇿 Азербайджан</option>
-                <option value="kyrgyzstan">🇰🇬 Кыргызстан</option>
-                <option value="moldova">🇲🇩 Молдова</option>
-                <option value="tajikistan">🇹🇯 Таджикистан</option>
-                <option value="uzbekistan">🇺🇿 Узбекистан</option>
-            </select>
-        </div>
-        <div class="holidays-messages" id="holidaysMessages">
-            <div class="message bot">
-                <div class="message-content">
-                    🎉 Выберите страну из списка, чтобы увидеть главные праздники. Также вы можете написать название праздника или страну, и я найду!
-                </div>
-            </div>
-        </div>
-        <div class="holidays-input">
-            <input type="text" id="holidayInput" placeholder="Например: День Независимости, Навруз, или страну..." onkeypress="if(event.key==='Enter') sendHolidayQuery()">
-            <button onclick="sendHolidayQuery()">Найти</button>
-        </div>
-    </div>
+    <canvas id="confetti-canvas"></canvas>
 
-    <!-- Вкладка: ИИ помощник (необычные праздники) -->
-    <div id="aiTab" class="tab-content">
-        <div class="ai-header">
-            🎲 ИИ-гид по удивительным праздникам мира
-        </div>
-        <div class="ai-messages" id="aiMessages">
-            <div class="message bot">
-                <div class="message-content">
-                    👋 Привет! Я знаю сотни странных и весёлых праздников!<br>
-                    🎲 Напиши <strong>«любой»</strong> — я расскажу случайный необычный праздник с фактом!<br>
-                    📝 Спроси про «День сурка», «Томатина», «Холи», «День обезьян» или что угодно.
-                </div>
-            </div>
-        </div>
-        <div class="quick-actions">
-            <button class="quick-btn random-btn" onclick="askRandomUnusual()">🎲 ЛЮБОЙ ПРАЗДНИК</button>
-            <button class="quick-btn" onclick="askAI('Томатина')">🍅 Томатина (Испания)</button>
-            <button class="quick-btn" onclick="askAI('День обезьян')">🐒 День обезьян</button>
-            <button class="quick-btn" onclick="askAI('Фестиваль красок Холи')">🎨 Холи</button>
-            <button class="quick-btn" onclick="askAI('необычный праздник в Японии')">🇯🇵 Япония</button>
-        </div>
-        <div class="ai-input">
-            <input type="text" id="aiInput" placeholder="Спроси про праздник: «любой», «День мертвых», «Навруз»..." onkeypress="if(event.key==='Enter') sendAIMessage()">
-            <button onclick="sendAIMessage()">Отправить</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // ---------- БАЗА ПРАЗДНИКОВ СНГ (по странам + поиск) ----------
-    const holidaysDB = {
-        russia: [
-            "1 января – Новый год", "7 января – Рождество Христово", "23 февраля – День защитника Отечества",
-            "8 марта – Международный женский день", "1 мая – Праздник Весны и Труда", "9 мая – День Победы",
-            "12 июня – День России", "4 ноября – День народного единства"
-        ],
-        belarus: [
-            "1 января – Новый год", "7 января – Рождество", "8 марта – Женский день", 
-            "1 мая – Праздник труда", "9 мая – День Победы", "3 июля – День Независимости Республики Беларусь",
-            "7 ноября – День Октябрьской революции", "25 декабря – Католическое Рождество"
-        ],
-        kazakhstan: [
-            "1-2 января – Новый год", "7 января – Рождество", "8 марта – Международный женский день",
-            "22 марта – Наурыз мейрамы", "1 мая – День единства народа Казахстана", "7 мая – День защитника Отечества",
-            "9 мая – День Победы", "6 июля – День столицы", "30 августа – День Конституции", 
-            "1 декабря – День Первого Президента", "16-17 декабря – День Независимости"
-        ],
-        armenia: [
-            "1-2 января – Новый год", "6 января – Рождество и Крещение", "8 марта – Женский день",
-            "7 апреля – День материнства и красоты", "24 апреля – День памяти жертв геноцида армян",
-            "1 мая – День труда", "9 мая – День Победы и освобождения Шуши", "28 мая – День Первой Республики",
-            "5 июля – День Конституции", "21 сентября – День Независимости"
-        ],
-        azerbaijan: [
-            "1-2 января – Новый год", "8 марта – Женский день", "20-24 марта – Новруз",
-            "9 мая – День Победы", "28 мая – День Республики", "15 июня – День национального спасения",
-            "26 июня – День Вооруженных сил", "8 ноября – День Победы (в Карабахской войне)", 
-            "31 декабря – День солидарности азербайджанцев мира"
-        ],
-        kyrgyzstan: [
-            "1 января – Новый год", "7 января – Рождество", "8 марта – Женский день", 
-            "21 марта – Нооруз", "1 мая – День труда", "5 мая – День Конституции", 
-            "9 мая – День Победы", "31 августа – День Независимости"
-        ],
-        moldova: [
-            "1 января – Новый год", "7-8 января – Рождество", "8 марта – Женский день",
-            "1 мая – День труда", "9 мая – День Победы", "27 августа – День Независимости",
-            "31 августа – День нашего языка (Limba noastră)", "25 декабря – Рождество по новому стилю"
-        ],
-        tajikistan: [
-            "1 января – Новый год", "8 марта – Женский день", "21-24 марта – Навруз",
-            "1 мая – День труда", "9 мая – День Победы", "27 июня – День национального единства",
-            "9 сентября – День Независимости", "6 ноября – День Конституции"
-        ],
-        uzbekistan: [
-            "1 января – Новый год", "8 марта – Женский день", "21 марта – Навруз", 
-            "9 мая – День памяти и почестей", "1 сентября – День Независимости", 
-            "1 октября – День учителя", "8 декабря – День Конституции"
-        ]
-    };
-
-    // Дополнительный словарь синонимов для поиска (названия праздников и стран)
-    function getHolidaysByCountry(countryCode) {
-        return holidaysDB[countryCode] || ["Праздники не найдены, выберите другую страну"];
-    }
-
-    function renderHolidaysList(countryCode) {
-        const messagesDiv = document.getElementById('holidaysMessages');
-        const holidays = getHolidaysByCountry(countryCode);
-        let countryName = document.querySelector('#countrySelect option:checked')?.innerText || "Страна";
-        let msgHtml = `<div class="message bot"><div class="message-content">📆 <strong>${countryName}</strong><br>🎉 Основные праздники:<br><br>${holidays.map(h => `• ${h}`).join('<br>')}</div></div>`;
-        messagesDiv.innerHTML = msgHtml;
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    // Поиск по праздникам (пользовательский запрос)
-    function searchHoliday(query) {
-        const lowerQuery = query.toLowerCase().trim();
-        if (lowerQuery === "") return "❓ Напишите название праздника или страну (Россия, Беларусь, Казахстан...)";
+    <div class="w-full max-w-4xl glass-panel rounded-3xl shadow-2xl shadow-indigo-900/20 overflow-hidden flex flex-col h-[90vh] sm:h-[85vh]">
         
-        // поиск по стране
-        const countryMap = {
-            "россия": "russia", "рф": "russia", "russia": "russia",
-            "беларусь": "belarus", "belarus": "belarus",
-            "казахстан": "kazakhstan", "kz": "kazakhstan",
-            "армения": "armenia", "armenia": "armenia",
-            "азербайджан": "azerbaijan", "azerbaijan": "azerbaijan",
-            "кыргызстан": "kyrgyzstan", "киргизия": "kyrgyzstan",
-            "молдова": "moldova", "moldova": "moldova",
-            "таджикистан": "tajikistan",
-            "узбекистан": "uzbekistan"
+        <!-- Шапка с датой -->
+        <div class="bg-slate-900/80 px-6 py-4 flex justify-between items-center border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                    <i class="fa-solid fa-calendar-star text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">Праздники <span class="text-indigo-400">СНГ</span></h1>
+                    <p class="text-xs text-slate-400" id="currentDateDisplay">Загрузка даты...</p>
+                </div>
+            </div>
+            <div class="hidden sm:block text-right">
+                <div class="text-xs text-emerald-400 font-semibold bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20" id="todayHolidayDisplay">
+                    ✨ Проверка праздников...
+                </div>
+            </div>
+        </div>
+
+        <div class="flex bg-slate-950/50 border-b border-slate-800">
+            <button class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all text-indigo-400 border-b-2 border-indigo-500 bg-slate-800/30" data-tab="holidays">
+                <i class="fa-solid fa-globe mr-2"></i><span class="hidden sm:inline">Праздники СНГ</span><span class="sm:hidden">СНГ</span>
+            </button>
+            <button class="tab-btn flex-1 py-4 px-2 text-center font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 transition-all border-b-2 border-transparent" data-tab="ai">
+                <i class="fa-solid fa-robot mr-2"></i><span class="hidden sm:inline">ИИ-Помощник</span><span class="sm:hidden">ИИ-Гид</span>
+            </button>
+        </div>
+
+        <div id="holidaysTab" class="tab-content flex-1 flex flex-col min-h-0">
+            <!-- Выбор страны -->
+            <div class="bg-slate-800/50 p-4 flex flex-wrap items-center gap-3 border-b border-slate-700/50">
+                <label class="text-slate-300 font-medium whitespace-nowrap"><i class="fa-solid fa-map-location-dot mr-2"></i>Страна:</label>
+                <select id="countrySelect" class="flex-1 bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer appearance-none">
+                    <option value="russia">🇷🇺 Россия</option>
+                    <option value="belarus">🇧🇾 Беларусь</option>
+                    <option value="kazakhstan">🇰🇿 Казахстан</option>
+                    <option value="armenia">🇦🇲 Армения</option>
+                    <option value="azerbaijan">🇦🇿 Азербайджан</option>
+                    <option value="kyrgyzstan">🇰🇬 Кыргызстан</option>
+                    <option value="moldova">🇲🇩 Молдова</option>
+                    <option value="tajikistan">🇹🇯 Таджикистан</option>
+                    <option value="uzbekistan">🇺🇿 Узбекистан</option>
+                </select>
+            </div>
+
+            <!-- Список праздников -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4" id="holidaysListContainer">
+                <!-- Сюда JS вставит праздники -->
+            </div>
+
+            <!-- Поиск -->
+            <div class="p-4 bg-slate-900/80 border-t border-slate-800 flex gap-2">
+                <input type="text" id="holidaySearchInput" placeholder="Поиск: Навруз, 8 марта..." 
+                       class="flex-1 bg-slate-800 border border-slate-700 text-white rounded-full px-5 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-500"
+                       onkeypress="if(event.key==='Enter') executeSearch()">
+                <button onclick="executeSearch()" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-full px-6 py-3 font-medium transition-transform active:scale-95 shadow-lg shadow-indigo-900/20">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="aiTab" class="tab-content flex-1 flex flex-col min-h-0 hidden">
+            <!-- Приветствие ИИ -->
+            <div class="bg-emerald-900/20 text-emerald-400 text-xs sm:text-sm p-3 text-center border-b border-emerald-900/30">
+                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Задайте вопрос о любом необычном празднике мира!
+            </div>
+            
+            <!-- Чат -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-4" id="aiMessages">
+                <!-- Начальное сообщение бота -->
+                <div class="flex justify-start chat-bubble-enter">
+                    <div class="bg-slate-800 border border-slate-700 text-slate-200 px-5 py-3.5 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
+                        👋 Привет! Я — ИИ-гид по праздникам.<br><br>
+                        🎲 Напиши <strong>«любой»</strong>, и я расскажу случайный факт!<br>
+                        🤔 Или спроси про <i>«Томатину»</i>, <i>«Холи»</i>, <i>«День сурка»</i>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="px-4 py-3 bg-slate-900/50 flex flex-wrap gap-2 justify-center border-t border-slate-800">
+                <button onclick="askAI('Любой')" class="px-4 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-semibold hover:bg-amber-500/20 transition-all">🎲 Случайный</button>
+                <button onclick="askAI('Томатина')" class="px-4 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-xs font-semibold hover:bg-red-500/20 transition-all">🍅 Томатина</button>
+                <button onclick="askAI('Холи')" class="px-4 py-1.5 bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 rounded-full text-xs font-semibold hover:bg-fuchsia-500/20 transition-all">🎨 Холи</button>
+                <button onclick="askAI('День мертвых')" class="px-4 py-1.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-semibold hover:bg-purple-500/20 transition-all">💀 Мексика</button>
+            </div>
+
+            <!-- Ввод ИИ -->
+            <div class="p-4 bg-slate-900/80 border-t border-slate-800 flex gap-2">
+                <input type="text" id="aiInput" placeholder="Спроси про праздник..." 
+                       class="flex-1 bg-slate-800 border border-slate-700 text-white rounded-full px-5 py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-slate-500"
+                       onkeypress="if(event.key==='Enter') sendAIMessage()">
+                <button onclick="sendAIMessage()" class="bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-6 py-3 font-medium transition-transform active:scale-95 shadow-lg shadow-emerald-900/20">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. Улучшенная база данных (с точными датами для расчетов) ---
+        // Формат даты: MM-DD
+        const cisHolidays = {
+            russia: [
+                { d: "01-01", n: "Новый год", e: "🎄", desc: "Главный зимний праздник." },
+                { d: "01-07", n: "Рождество Христово", e: "⛪", desc: "Светлый православный праздник." },
+                { d: "02-23", n: "День защитника Отечества", e: "🛡️", desc: "Праздник мужества и чести." },
+                { d: "03-08", n: "Международный женский день", e: "🌸", desc: "Праздник весны и внимания к женщинам." },
+                { d: "05-01", n: "Праздник Весны и Труда", e: "🕊️", desc: "День солидарности трудящихся." },
+                { d: "05-09", n: "День Победы", e: "🎖️", desc: "Память о Великой Победе 1945 года." },
+                { d: "06-12", n: "День России", e: "🇷🇺", desc: "Главный государственный праздник РФ." },
+                { d: "11-04", n: "День народного единства", e: "🤝", desc: "В память об освобождении Москвы в 1612 г." }
+            ],
+            belarus: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "01-07", n: "Рождество православное", e: "⛪" },
+                { d: "03-08", n: "День женщин", e: "🌸" },
+                { d: "05-01", n: "Праздник труда", e: "🛠️" },
+                { d: "05-09", n: "День Победы", e: "🎖️" },
+                { d: "07-03", n: "День Независимости", e: "🇧🇾" },
+                { d: "11-07", n: "День Октябрьской революции", e: "🚩" },
+                { d: "12-25", n: "Рождество католическое", e: "🌟" }
+            ],
+            kazakhstan: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "01-07", n: "Рождество", e: "⛪" },
+                { d: "03-08", n: "Международный женский день", e: "🌸" },
+                { d: "03-22", n: "Наурыз мейрамы", e: "🌱" },
+                { d: "05-01", n: "День единства народа", e: "🤝" },
+                { d: "05-07", n: "День защитника Отечества", e: "🛡️" },
+                { d: "05-09", n: "День Победы", e: "🎖️" },
+                { d: "07-06", n: "День столицы", e: "🏙️" },
+                { d: "08-30", n: "День Конституции", e: "📜" },
+                { d: "10-25", n: "День Республики", e: "🇰🇿" },
+                { d: "12-16", n: "День Независимости", e: "🦅" }
+            ],
+            armenia: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "01-06", n: "Рождество и Крещение", e: "⛪" },
+                { d: "03-08", n: "Праздник женщин", e: "🌸" },
+                { d: "04-07", n: "День материнства и красоты", e: "👩‍👧" },
+                { d: "04-24", n: "День памяти жертв геноцида", e: "🕯️" },
+                { d: "05-01", n: "День труда", e: "🛠️" },
+                { d: "05-09", n: "День Победы и Мира", e: "🕊️" },
+                { d: "05-28", n: "День Первой Республики", e: "🇦🇲" },
+                { d: "07-05", n: "День Конституции", e: "📜" },
+                { d: "09-21", n: "День Независимости", e: "🎉" }
+            ],
+            azerbaijan: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "03-08", n: "Женский день", e: "🌸" },
+                { d: "03-20", n: "Новруз", e: "🔥" },
+                { d: "05-09", n: "День Победы", e: "🎖️" },
+                { d: "05-28", n: "День Независимости", e: "🇦🇿" },
+                { d: "06-15", n: "День национального спасения", e: "🛡️" },
+                { d: "06-26", n: "День Вооруженных сил", e: "⚔️" },
+                { d: "11-08", n: "День Победы (в Отечественной войне)", e: "🏆" },
+                { d: "12-31", n: "День солидарности", e: "🤝" }
+            ],
+            kyrgyzstan: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "01-07", n: "Рождество", e: "⛪" },
+                { d: "03-08", n: "Женский день", e: "🌸" },
+                { d: "03-21", n: "Нооруз", e: "🌱" },
+                { d: "05-01", n: "День труда", e: "🛠️" },
+                { d: "05-05", n: "День Конституции", e: "📜" },
+                { d: "05-09", n: "День Победы", e: "🎖️" },
+                { d: "08-31", n: "День Независимости", e: "🇰🇬" }
+            ],
+            moldova: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "01-07", n: "Рождество (старый стиль)", e: "⛪" },
+                { d: "03-08", n: "Международный женский день", e: "🌸" },
+                { d: "05-01", n: "День труда", e: "🛠️" },
+                { d: "05-09", n: "День Европы / День Победы", e: "🇪🇺" },
+                { d: "08-27", n: "День Независимости", e: "🇲🇩" },
+                { d: "08-31", n: "Национальный праздник «Лимба ноастрэ»", e: "📖" },
+                { d: "12-25", n: "Рождество (новый стиль)", e: "🌟" }
+            ],
+            tajikistan: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "03-08", n: "День матери", e: "👩" },
+                { d: "03-21", n: "Навруз", e: "🌱" },
+                { d: "05-09", n: "День Победы", e: "🎖️" },
+                { d: "06-27", n: "День национального единства", e: "🤝" },
+                { d: "09-09", n: "День Государственной независимости", e: "🇹🇯" },
+                { d: "11-06", n: "День Конституции", e: "📜" }
+            ],
+            uzbekistan: [
+                { d: "01-01", n: "Новый год", e: "🎄" },
+                { d: "03-08", n: "Женский день", e: "🌸" },
+                { d: "03-21", n: "Навруз", e: "🌱" },
+                { d: "05-09", n: "День памяти и почестей", e: "🕯️" },
+                { d: "09-01", n: "День Независимости", e: "🇺🇿" },
+                { d: "10-01", n: "День учителя", e: "👨‍🏫" },
+                { d: "12-08", n: "День Конституции", e: "📜" }
+            ]
         };
-        for (let [name, code] of Object.entries(countryMap)) {
-            if (lowerQuery.includes(name)) {
-                let holidays = getHolidaysByCountry(code);
-                let title = name.charAt(0).toUpperCase() + name.slice(1);
-                return `🎯 <strong>${title}</strong><br><br>${holidays.map(h => `📌 ${h}`).join('<br>')}`;
+
+        const aiDB = [
+            { e: "🐒", n: "День обезьян", c: "Таиланд", d: "25 ноября", f: "В Лопбури накрывают столы с 2 тоннами фруктов для макак! Это привлекает туристов и удачу." },
+            { e: "🍅", n: "Томатина", c: "Испания", d: "Август", f: "Грандиозная битва помидорами в Буньоле. Тратят более 150 тонн томатов за пару часов!" },
+            { e: "🧀", n: "Сырная гонка", c: "Англия", d: "Май", f: "Смельчаки бегут вниз по крутому холму Купера за летящей головкой сыра. Травмы — обычное дело." },
+            { e: "🎨", n: "Холи", c: "Индия", d: "Март", f: "Фестиваль красок. Люди посыпают друг друга цветным порошком (гулал) в знак прихода весны." },
+            { e: "💀", n: "День мертвых", c: "Мексика", d: "1-2 ноября", f: "Яркий карнавал с алтарями и сахарными черепами. Считается, что души возвращаются к родным." },
+            { e: "👶", n: "Наки Сумо", c: "Япония", d: "Апрель", f: "Сумоисты держат младенцев на руках. Чей ребенок заплачет первым и громче — тот победитель! (К здоровью)." },
+            { e: "🐸", n: "Прыжки лягушек", c: "США", d: "Май", f: "В Калифорнии соревнуются, чья лягушка прыгнет дальше. Рекорд держится с 1986 года — более 6 метров!" }
+        ];
+
+        // --- STREAMING_CHUNK:Функции логики и дат ---
+        let currentRealDate = new Date(); // Для динамических расчетов
+        
+        function initApp() {
+            // Установка даты в шапке
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDateDisplay').textContent = currentRealDate.toLocaleDateString('ru-RU', options);
+            
+            checkTodayHolidays();
+            renderHolidays(document.getElementById('countrySelect').value);
+            
+            // Обработчики вкладок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Убираем активные классы
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('text-indigo-400', 'border-indigo-500', 'bg-slate-800/30');
+                        b.classList.add('text-slate-400', 'border-transparent');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                    
+                    // Активируем текущую
+                    const targetId = btn.getAttribute('data-tab');
+                    btn.classList.remove('text-slate-400', 'border-transparent');
+                    btn.classList.add('text-indigo-400', 'border-indigo-500', 'bg-slate-800/30');
+                    document.getElementById(targetId + 'Tab').classList.remove('hidden');
+                });
+            });
+
+            // Смена страны
+            document.getElementById('countrySelect').addEventListener('change', (e) => {
+                renderHolidays(e.target.value);
+            });
+        }
+
+        function calculateDaysLeft(dateString) {
+            const currentYear = currentRealDate.getFullYear();
+            const [month, day] = dateString.split('-');
+            let holidayDate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+            
+            // Убираем часы для точного сравнения дней
+            const today = new Date(currentYear, currentRealDate.getMonth(), currentRealDate.getDate());
+            
+            const diffTime = holidayDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                // Праздник уже прошел в этом году, смотрим на следующий
+                holidayDate.setFullYear(currentYear + 1);
+                const nextDiff = holidayDate - today;
+                return { days: Math.ceil(nextDiff / (1000 * 60 * 60 * 24)), status: 'next_year', text: 'Прошел' };
+            } else if (diffDays === 0) {
+                return { days: 0, status: 'today', text: 'Сегодня!' };
+            }
+            return { days: diffDays, status: 'upcoming', text: `Через ${diffDays} дн.` };
+        }
+
+        function checkTodayHolidays() {
+            let todayStr = String(currentRealDate.getMonth() + 1).padStart(2, '0') + '-' + String(currentRealDate.getDate()).padStart(2, '0');
+            let found = [];
+            
+            for (let country in cisHolidays) {
+                cisHolidays[country].forEach(h => {
+                    if (h.d === todayStr && !found.includes(h.n)) {
+                        found.push(h.n);
+                    }
+                });
+            }
+            
+            const display = document.getElementById('todayHolidayDisplay');
+            if (found.length > 0) {
+                display.innerHTML = `🎉 Сегодня: ${found[0]}`;
+                display.classList.remove('bg-emerald-400/10', 'text-emerald-400', 'border-emerald-400/20');
+                display.classList.add('bg-fuchsia-500/20', 'text-fuchsia-300', 'border-fuchsia-500/30', 'animate-pulse');
+                fireConfetti();
+            } else {
+                display.innerHTML = `📅 Обычный день`;
             }
         }
-        
-        // поиск по ключевым словам праздников (перебор)
-        let allMatches = [];
-        for (let [code, list] of Object.entries(holidaysDB)) {
-            for (let holiday of list) {
-                if (holiday.toLowerCase().includes(lowerQuery)) {
-                    let countryFlag = document.querySelector(`#countrySelect option[value="${code}"]`)?.innerText || code;
-                    allMatches.push(`${countryFlag}: ${holiday}`);
+
+        // --- STREAMING_CHUNK:Отрисовка и Поиск ---
+        function renderHolidays(country, filterText = "") {
+            const container = document.getElementById('holidaysListContainer');
+            container.innerHTML = '';
+            
+            let list = cisHolidays[country] || [];
+            
+            // Если есть поиск, фильтруем по всем странам или по текущей
+            if (filterText) {
+                list = [];
+                const q = filterText.toLowerCase();
+                for (let c in cisHolidays) {
+                    cisHolidays[c].forEach(h => {
+                        if (h.n.toLowerCase().includes(q) || (h.desc && h.desc.toLowerCase().includes(q))) {
+                            // Добавляем флаг страны для контекста
+                            const countryName = document.querySelector(`#countrySelect option[value="${c}"]`).textContent.split(' ')[0];
+                            list.push({...h, cFlag: countryName});
+                        }
+                    });
                 }
+                // Убираем дубликаты по имени, если ищем глобально
+                list = list.filter((v,i,a)=>a.findIndex(t=>(t.n === v.n && t.d === v.d))===i);
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 py-10"><i class="fa-solid fa-magnifying-glass text-3xl mb-3 opacity-50"></i><br>Ничего не найдено</div>`;
+                return;
+            }
+
+            // Обогащаем данными о днях и сортируем (ближайшие сверху)
+            list = list.map(h => {
+                const timing = calculateDaysLeft(h.d);
+                return { ...h, timing };
+            });
+            
+            // Сортировка: сначала 'today', потом 'upcoming' (по возрастанию дней), потом 'next_year'
+            list.sort((a, b) => {
+                if (a.timing.status === 'today') return -1;
+                if (b.timing.status === 'today') return 1;
+                return a.timing.days - b.timing.days;
+            });
+
+            list.forEach(h => {
+                const [m, d] = h.d.split('-');
+                const formattedDate = `${parseInt(d)}.${parseInt(m)}`; // e.g. 1.01
+                
+                let badgeClass = "bg-slate-700 text-slate-300";
+                let glowClass = "";
+                if (h.timing.status === 'today') {
+                    badgeClass = "bg-fuchsia-500 text-white font-bold animate-pulse";
+                    glowClass = "border-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.2)]";
+                } else if (h.timing.status === 'upcoming' && h.timing.days <= 14) {
+                    badgeClass = "bg-indigo-500 text-white font-semibold";
+                    glowClass = "border-indigo-500/30";
+                } else if (h.timing.status === 'next_year') {
+                    badgeClass = "bg-slate-800 text-slate-500";
+                    glowClass = "opacity-75";
+                }
+
+                const flagSpan = h.cFlag ? `<span class="text-xs mr-2 opacity-70">${h.cFlag}</span>` : '';
+
+                const el = document.createElement('div');
+                el.className = `bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4 transition-all hover:bg-slate-700/60 hover:scale-[1.01] ${glowClass}`;
+                el.innerHTML = `
+                    <div class="text-3xl bg-slate-900 w-14 h-14 rounded-xl flex items-center justify-center shadow-inner border border-slate-700/50 flex-shrink-0">
+                        ${h.e}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-white font-semibold truncate text-base sm:text-lg">${flagSpan}${h.n}</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm truncate">${h.desc || 'Праздник'}</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-medium text-slate-300 bg-slate-900/80 px-2 py-1 rounded-md mb-1">${formattedDate}</span>
+                        <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full ${badgeClass}">${h.timing.text}</span>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function executeSearch() {
+            const q = document.getElementById('holidaySearchInput').value.trim();
+            if (q) {
+                renderHolidays('', q);
+                document.getElementById('countrySelect').value = ""; // Сброс селекта
+            } else {
+                renderHolidays('russia');
+                document.getElementById('countrySelect').value = "russia";
             }
         }
-        if (allMatches.length > 0) {
-            return `🔍 Найдено по запросу «${query}»:<br><br>${allMatches.slice(0, 10).join('<br>')}` + (allMatches.length > 10 ? '<br>и ещё...' : '');
-        }
-        return `😕 Ничего не найдено по «${query}». Попробуйте выбрать страну из списка или уточнить запрос.`;
-    }
 
-    function sendHolidayQuery() {
-        const input = document.getElementById('holidayInput');
-        const query = input.value.trim();
-        if (!query) return;
-        const messagesDiv = document.getElementById('holidaysMessages');
-        // добавить сообщение пользователя
-        const userMsgDiv = document.createElement('div');
-        userMsgDiv.className = 'message user';
-        userMsgDiv.innerHTML = `<div class="message-content">${escapeHtml(query)}</div>`;
-        messagesDiv.appendChild(userMsgDiv);
-        
-        const answer = searchHoliday(query);
-        const botMsgDiv = document.createElement('div');
-        botMsgDiv.className = 'message bot';
-        botMsgDiv.innerHTML = `<div class="message-content">${answer}</div>`;
-        messagesDiv.appendChild(botMsgDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        input.value = '';
-    }
+        // --- STREAMING_CHUNK:Логика ИИ Помощника ---
+        function askAI(topic) {
+            document.getElementById('aiInput').value = topic;
+            sendAIMessage();
+        }
 
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-            return c;
-        });
-    }
+        function appendMessage(text, isBot) {
+            const container = document.getElementById('aiMessages');
+            const wrap = document.createElement('div');
+            wrap.className = `flex chat-bubble-enter ${isBot ? 'justify-start' : 'justify-end'}`;
+            
+            let bubbleClass = isBot 
+                ? 'bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm' 
+                : 'bg-indigo-600 text-white rounded-tr-sm shadow-md shadow-indigo-900/30';
+            
+            wrap.innerHTML = `<div class="px-5 py-3.5 rounded-3xl max-w-[85%] text-sm sm:text-base leading-relaxed ${bubbleClass}">${text}</div>`;
+            container.appendChild(wrap);
+            container.scrollTop = container.scrollHeight;
+        }
 
-    // ---------- БАЗА НЕОБЫЧНЫХ ПРАЗДНИКОВ ДЛЯ ИИ ----------
-    const UNUSUAL_HOLIDAYS = [
-        { emoji: "🐒", name: "День обезьян", country: "Таиланд", date: "25 ноября", fact: "В городе Лопбури накрывают столы с 2000 кг фруктов для обезьян — местные верят, что так привлекают удачу!" },
-        { emoji: "🍅", name: "Томатина", country: "Испания", date: "Последняя среда августа", fact: "В Буньоле битва помидорами: 150 тонн томатов за 2 часа!" },
-        { emoji: "🐄", name: "Фестиваль коровьего навоза", country: "Индия", date: "Ноябрь", fact: "В деревне Гуруваюр кидаются коровьими лепёшками — к здоровью и удаче." },
-        { emoji: "🏃", name: "Чемпионат по бегу за сыром", country: "Англия", date: "Май", fact: "Участники бегут вниз по холму за головкой сыра Глостер. Кто первый — забирает сыр!" },
-        { emoji: "👶", name: "Фестиваль ползающих младенцев", country: "Япония", date: "Апрель", fact: "Младенцы ползут наперегонки, считается что победитель будет жить дольше." },
-        { emoji: "🪑", name: "День бросания стульев", country: "Великобритания", date: "Июнь", fact: "Соревнования по метанию садовых стульев. Рекорд — 36 метров!" },
-        { emoji: "🐸", name: "Фестиваль лягушек", country: "Франция", date: "Апрель", fact: "Лягушачьи бега и конкурс на лучший лягушачий поцелуй." },
-        { emoji: "🎭", name: "Карнавал ведьм", country: "Мексика", date: "1 марта", fact: "В Катемако мужчины переодеваются в ведьм и пугают прохожих." },
-        { emoji: "🛶", name: "Гонки на гробах", country: "Гана", date: "Ноябрь", fact: "Лодки в форме гробов, рыбаки соревнуются на скорость." },
-        { emoji: "🔥", name: "Фестиваль горящих бочек", country: "Англия", date: "5 ноября", fact: "Носят горящие дёгтем бочки по улицам — традиция 17 века." },
-        { emoji: "🧹", name: "Фестиваль ведьм", country: "Чехия", date: "30 апреля", fact: "Сжигают чучела ведьм, чтобы прогнать злых духов." },
-        { emoji: "🍇", name: "Битва виноградом", country: "Испания", date: "29 июня", fact: "В Алая кидаются 1000 кг винограда в честь святого Петра." },
-        { emoji: "🧀", name: "Подводная рыбалка на сыр", country: "Швейцария", date: "Сентябрь", fact: "В озеро Бриенц бросают сыр, ныряльщики соревнуются кто быстрее достанет." },
-        { emoji: "💃", name: "Фестиваль спящих", country: "Испания", date: "Июнь", fact: "Городок Ордас: люди ложатся на матрасы посреди улицы — побеждает тот, кто дольше не шевелится." },
-        { emoji: "🪁", name: "Международный день воздушных змеев", country: "Индия", date: "14 января", fact: "Небо над Ахмедабадом заполняется миллионами змеев. Символ прихода весны." }
-    ];
-    
-    // Доп. тематический ответ (на основе ключевых слов)
-    function aiSmartReply(query) {
-        const q = query.toLowerCase();
-        if (q.includes("любой") || q.includes("случайный") || q.includes("рандом")) {
-            const random = UNUSUAL_HOLIDAYS[Math.floor(Math.random() * UNUSUAL_HOLIDAYS.length)];
-            return `${random.emoji} <strong>${random.name}</strong> (${random.country}, ${random.date})<br>📖 ${random.fact}`;
+        function showTyping() {
+            const container = document.getElementById('aiMessages');
+            const wrap = document.createElement('div');
+            wrap.id = 'typingIndicator';
+            wrap.className = 'flex justify-start chat-bubble-enter';
+            wrap.innerHTML = `<div class="bg-slate-800 border border-slate-700 px-5 py-4 rounded-3xl rounded-tl-sm"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+            container.appendChild(wrap);
+            container.scrollTop = container.scrollHeight;
         }
-        // поиск в базе по названию или стране
-        const found = UNUSUAL_HOLIDAYS.find(h => 
-            h.name.toLowerCase().includes(q) || 
-            h.country.toLowerCase().includes(q) ||
-            (q.includes("томатина")) ||
-            (q.includes("обезьян") && h.name.includes("Обезьян")) ||
-            (q.includes("сыр") && h.name.includes("сыром")) ||
-            (q.includes("лягушек") && h.name.includes("лягушек")) ||
-            (q.includes("ведьм") && (h.name.includes("ведьм") || h.name.includes("Карнавал ведьм"))) ||
-            (q.includes("хо")) && h.name === "Фестиваль красок" 
-        );
-        if (found) {
-            return `${found.emoji} <strong>${found.name}</strong> (${found.country}, ${found.date})<br>✨ Факт: ${found.fact}`;
+
+        function hideTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
         }
-        if (q.includes("навруз") || q.includes("нооруз")) {
-            return "🌱 Навруз – древний праздник весны, отмечается 21 марта в Иране, Центральной Азии, Азербайджане, Таджикистане. Символизирует обновление природы, готовят сумаляк, прыгают через костёр.";
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const q = input.value.trim();
+            if (!q) return;
+
+            appendMessage(escapeHtml(q), false);
+            input.value = '';
+            
+            showTyping();
+
+            // Эмуляция задержки ответа (1-2 сек)
+            setTimeout(() => {
+                hideTyping();
+                const reply = generateAIReply(q);
+                appendMessage(reply, true);
+                
+                // Если ИИ нашел интересный праздник, запускаем конфетти
+                if (reply.includes("✨") || reply.includes("🎉") || q.toLowerCase() === 'любой') {
+                    fireConfetti();
+                }
+            }, 1000 + Math.random() * 800);
         }
-        if (q.includes("день победы")) {
-            return "🎖️ 9 мая — День Победы в странах бывшего СССР. Память о подвиге народа в Великой Отечественной войне, парады, Бессмертный полк, салюты.";
+
+        function generateAIReply(query) {
+            const q = query.toLowerCase();
+            
+            if (q.includes("любой") || q.includes("случайный") || q.includes("рандом")) {
+                const r = aiDB[Math.floor(Math.random() * aiDB.length)];
+                return `${r.e} <strong>${r.n}</strong> (${r.c}, ${r.d})<br><br>✨ <i>Факт:</i> ${r.f}`;
+            }
+
+            const found = aiDB.find(h => 
+                h.n.toLowerCase().includes(q) || 
+                h.c.toLowerCase().includes(q) ||
+                (q.includes("обезьян") && h.n.includes("Обезьян")) ||
+                (q.includes("сыр") && h.n.includes("сыр"))
+            );
+
+            if (found) {
+                return `О, я знаю про это! 🎉<br><br>${found.e} <strong>${found.n}</strong> (${found.c}, ${found.d})<br><br>✨ ${found.f}`;
+            }
+
+            if (q.includes("навруз")) return "🌱 <strong>Навруз</strong> – праздник прихода весны (21 марта). Люди готовят сумаляк из пророщенной пшеницы и прыгают через костер для очищения.";
+            if (q.includes("холи")) return "🎨 <strong>Холи</strong> — знаменитый индийский фестиваль весной. На нем принято осыпать друг друга яркими красками. Символизирует победу добра над злом!";
+            if (q.includes("снг")) return "Чтобы посмотреть праздники стран СНГ, переключитесь на первую вкладку вверху экрана! 👆";
+
+            return `🤔 Хм, не уверен насчет «${escapeHtml(query)}». Но я постоянно учусь! Напишите <strong>«любой»</strong>, и я расскажу удивительный факт о празднике, который вы точно не знали.`;
         }
-        if (q.includes("холи")) {
-            return "🎨 Холи — индийский фестиваль красок весной. Люди посыпают друг друга цветными порошками и обливаются водой, символизируя победу добра и весны.";
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
         }
-        if (q.includes("день мертвых")) {
-            return "💀 Día de los Muertos (Мексика) — 1-2 ноября. Яркий праздник в честь умерших: алтари, бархатцы, сладкие черепа, вера в возвращение душ.";
+
+        // --- STREAMING_CHUNK:Эффект Конфетти (Canvas) ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-        if (q.includes("япония")) {
-            return "🇯🇵 В Японии много удивительных фестивалей: Касукабэ (фестиваль голых мужчин), Наки Сумо (плач младенцев), а также праздник ползающих младенцев!";
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function fireConfetti() {
+            const colors = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#d946ef'];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + 100,
+                    r: Math.random() * 6 + 2,
+                    dx: Math.random() * 20 - 10,
+                    dy: Math.random() * -20 - 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 10,
+                    tiltAngle: Math.random() * Math.PI
+                });
+            }
+            if (!animationId) animateConfetti();
         }
-        return `📚 Я не нашел точного совпадения по «${query}». Но могу рассказать случайный праздник! Напиши «любой» или спроси про Томатину, День обезьян, Холи, Навруз. 🌍`;
-    }
-    
-    function askRandomUnusual() {
-        const randomH = UNUSUAL_HOLIDAYS[Math.floor(Math.random() * UNUSUAL_HOLIDAYS.length)];
-        const answer = `${randomH.emoji} <strong>${randomH.name}</strong> (${randomH.country}, ${randomH.date})<br>📖 ${randomH.fact}`;
-        addAIMessage(answer, true);
-    }
-    
-    function askAI(topic) {
-        const answer = aiSmartReply(topic);
-        addAIMessage(answer, true);
-    }
-    
-    function sendAIMessage() {
-        const input = document.getElementById('aiInput');
-        const query = input.value.trim();
-        if (!query) return;
-        addAIMessage(escapeHtml(query), false);
-        const reply = aiSmartReply(query);
-        addAIMessage(reply, true);
-        input.value = '';
-    }
-    
-    function addAIMessage(text, isBot) {
-        const container = document.getElementById('aiMessages');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${isBot ? 'bot' : 'user'}`;
-        msgDiv.innerHTML = `<div class="message-content">${text}</div>`;
-        container.appendChild(msgDiv);
-        container.scrollTop = container.scrollHeight;
-    }
-    
-    // Переключение вкладок
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (tabId === 'holidays') document.getElementById('holidaysTab').classList.add('active');
-            else document.getElementById('aiTab').classList.add('active');
-        });
-    });
-    
-    // При смене страны обновить список праздников
-    const countrySelect = document.getElementById('countrySelect');
-    countrySelect.addEventListener('change', (e) => {
-        renderHolidaysList(e.target.value);
-    });
-    renderHolidaysList('russia');
-    
-    // Глобальные функции
-    window.sendHolidayQuery = sendHolidayQuery;
-    window.sendAIMessage = sendAIMessage;
-    window.askRandomUnusual = askRandomUnusual;
-    window.askAI = askAI;
-</script>
+
+        function animateConfetti() {
+            requestAnimationFrame(animateConfetti);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+
+            particles.forEach((p, index) => {
+                p.dy += 0.5; // гравитация
+                p.x += p.dx;
+                p.y += p.dy;
+                p.tiltAngle += 0.1;
+                
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+                ctx.stroke();
+
+                if (p.y < canvas.height) active = true;
+            });
+
+            if (!active) {
+                particles = [];
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        // Инициализация при загрузке
+        window.onload = initApp;
+
+    </script>
 </body>
 </html>
